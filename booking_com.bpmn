@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1ti91fy" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.5.0">
+  <bpmn:collaboration id="Collaboration_0kgztiu">
+    <bpmn:participant id="CheckBooking" name="Check Booking" processRef="Process_0jzo2w7" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_0jzo2w7" isExecutable="true">
+    <bpmn:serviceTask id="ServiceTask_1y6u4rs" name="Get hotel data">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="url">https://distribution-xml.booking.com/2.5/json/hotels?language=en&amp;extras=payment_details&amp;hotel_ids=${booking.hotel_id}</camunda:inputParameter>
+            <camunda:inputParameter name="method">GET</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="Content-Type">application/json</camunda:entry>
+                <camunda:entry key="Authorization">Basic bWVnYWZvbjoyMDIwMjAyMDIwMjA=</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:outputParameter name="hotel">${S(response).prop("result")}</camunda:outputParameter>
+            <camunda:outputParameter name="booking">${JSON(booking).toString()}</camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_1e5w6uy</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_05amrqm</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:startEvent id="StartEvent_1e8wete" name="Booking needs check">
+      <bpmn:outgoing>SequenceFlow_1e5w6uy</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_1e5w6uy" sourceRef="StartEvent_1e8wete" targetRef="ServiceTask_1y6u4rs" />
+    <bpmn:task id="Task_0szmzkv" name="Check country">
+      <bpmn:incoming>SequenceFlow_05amrqm</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0386lqa</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="SequenceFlow_05amrqm" sourceRef="ServiceTask_1y6u4rs" targetRef="Task_0szmzkv" />
+    <bpmn:sequenceFlow id="SequenceFlow_0386lqa" sourceRef="Task_0szmzkv" targetRef="Task_193qosj" />
+    <bpmn:businessRuleTask id="Task_193qosj" name="Define status" camunda:decisionRef="DefineBookingStatus">
+      <bpmn:incoming>SequenceFlow_0386lqa</bpmn:incoming>
+    </bpmn:businessRuleTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_0kgztiu">
+      <bpmndi:BPMNShape id="Participant_0giyd3t_di" bpmnElement="CheckBooking" isHorizontal="true">
+        <dc:Bounds x="129" y="110" width="761" height="300" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_1y6u4rs_di" bpmnElement="ServiceTask_1y6u4rs">
+        <dc:Bounds x="280" y="220" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_1e8wete_di" bpmnElement="StartEvent_1e8wete">
+        <dc:Bounds x="192" y="242" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="173" y="285" width="74" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1e5w6uy_di" bpmnElement="SequenceFlow_1e5w6uy">
+        <di:waypoint x="228" y="260" />
+        <di:waypoint x="280" y="260" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Task_0szmzkv_di" bpmnElement="Task_0szmzkv">
+        <dc:Bounds x="440" y="220" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_05amrqm_di" bpmnElement="SequenceFlow_05amrqm">
+        <di:waypoint x="380" y="260" />
+        <di:waypoint x="440" y="260" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0386lqa_di" bpmnElement="SequenceFlow_0386lqa">
+        <di:waypoint x="540" y="260" />
+        <di:waypoint x="600" y="260" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="BusinessRuleTask_17xwsly_di" bpmnElement="Task_193qosj">
+        <dc:Bounds x="600" y="220" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
